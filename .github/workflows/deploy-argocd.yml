@@ -119,6 +119,24 @@ on:
         description: GRPC Keep Alive Min
         default: 20s
 
+      grpc-web:
+        required: false
+        type: boolean
+        description: GRPC Web
+        default: true
+
+      sync-option-prune:
+        required: false
+        type: boolean
+        description: Prune resources when sync
+        default: true
+
+      sync-option-force:
+        required: false
+        type: boolean
+        description: Prune resources when sync
+        default: true
+
     secrets:
       ARGOCD_AUTH_TOKEN:
         required: true
@@ -146,7 +164,6 @@ jobs:
             --repo ${{ inputs.repository-url }} \
             --server ${{ inputs.argocd-server-url }} \
             --upsert \
-            --grpc-web \
             --revision ${{ inputs.revision }} \
             --values values-${{ inputs.environment }}.yaml "
 
@@ -156,6 +173,10 @@ jobs:
           
           if [ "${{ inputs.self-heal }}" == "true" ]; then
             command+=" --self-heal"
+          fi
+
+          if [ "${{ inputs.grpc-web }}" == "true" ]; then
+            command+=" --grpc-web"
           fi
           
           command+=" --sync-policy ${{ inputs.sync-policy }}"
@@ -169,14 +190,23 @@ jobs:
         run: |
           command="argocd app sync ${{ inputs.argocd-project }}/${{ inputs.application-name }} \
             --server ${{ inputs.argocd-server-url }} \
-            --force \
-            --prune \
-            --grpc-web \
             --retry-limit ${{ inputs.retry-limit }} \
             --timeout ${{ inputs.argocd-sync-timeout }} "
 
           if [ "${{ inputs.async }}" == "true" ]; then
             command+=" --async"
+          fi
+
+          if [ "${{ inputs.grpc-web }}" == "true" ]; then
+            command+=" --grpc-web"
+          fi
+
+          if [ "${{ inputs.sync-option-prune }}" == "true" ]; then
+            command+=" --prune"
+          fi
+
+          if [ "${{ inputs.sync-option-force }}" == "true" ]; then
+            command+=" --force"
           fi
 
           echo "Sync app: $command"
