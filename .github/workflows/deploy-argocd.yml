@@ -165,7 +165,8 @@ jobs:
             --server ${{ inputs.argocd-server-url }} \
             --upsert \
             --revision ${{ inputs.revision }} \
-            --values values-${{ inputs.environment }}.yaml "
+            --values values-${{ inputs.environment }}.yaml \
+            --sync-option CreateNamespace=true "
 
           if [ "${{ inputs.auto-prune }}" == "true" ]; then
             command+=" --auto-prune"
